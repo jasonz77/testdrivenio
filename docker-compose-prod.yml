@@ -7,15 +7,11 @@ services:
     build:
       context: ./services/users
       dockerfile: Dockerfile-prod
-    #volumes:
-    #  - './services/users:/usr/src/app'
-    #ports:
-    #  - 5001:5000
     expose:
       - '5000'
     environment:
       - APP_SETTINGS=project.config.ProductionConfig
-      - DATABASE_URL=postgres://postgres:postgres@users-db:5432/users_prod
+      - DATABASE_URL=postgres://postgres:postgres@users-db:5432/users_dev
       - DATABASE_TEST_URL=postgres://postgres:postgres@users-db:5432/users_test
     depends_on:
       - users-db
@@ -33,6 +29,21 @@ services:
       - POSTGRES_USER=postgres
       - POSTGRES_PASSWORD=postgres
 
+  client:
+    container_name: client
+    build:
+      context: ./services/client
+      dockerfile: Dockerfile-prod
+      args:
+        - NODE_ENV=development
+        - REACT_APP_USERS_SERVICE_URL=${REACT_APP_USERS_SERVICE_URL}
+    ports:
+      - '3007:80'
+    depends_on:
+      - users
+    links:
+      - users
+
   nginx:
     container_name: nginx
     build:
@@ -44,18 +55,3 @@ services:
     depends_on:
       - users
       - client
-
-  client:
-    container_name: client
-    build:
-      context: ./services/client
-      dockerfile: Dockerfile-prod
-      args:
-        - NODE_ENV=production
-        - REACT_APP_USERS_SERVICE_URL=${REACT_APP_USERS_SERVICE_URL}
-    ports:
-      - '3007:80'
-    depends_on:
-      - users
-    links:
-      - users

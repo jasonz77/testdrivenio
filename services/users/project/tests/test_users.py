@@ -1,11 +1,12 @@
 # services/users/project/tests/test_users.py
+
+
 import json
 import unittest
 
-from project.tests.base import BaseTestCase
-
 from project import db
 from project.api.models import User
+from project.tests.base import BaseTestCase
 
 
 def add_user(username, email):
@@ -167,7 +168,7 @@ class TestUserService(BaseTestCase):
         with self.client:
             response = self.client.post(
                 '/',
-                data=dict(username='michael', email='michael@sonotreal.com'),
+                data=dict(username='michael', email='michael@realpython.com'),
                 follow_redirects=True
             )
             self.assertEqual(response.status_code, 200)

@@ -12,7 +12,6 @@ services:
     ports:
       - 5001:5000
     environment:
-      #- FLASK_APP=project/__init__.py
       - FLASK_DEBUG=1
       - APP_SETTINGS=project.config.DevelopmentConfig
       - DATABASE_URL=postgres://postgres:postgres@users-db:5432/users_dev
@@ -33,6 +32,24 @@ services:
       - POSTGRES_USER=postgres
       - POSTGRES_PASSWORD=postgres
 
+  client:
+    container_name: client
+    build:
+      context: ./services/client
+      dockerfile: Dockerfile-dev
+    volumes:
+      - './services/client:/usr/src/app'
+    ports:
+      - '3007:3000'
+    environment:
+      - NODE_ENV=development
+      - REACT_APP_USERS_SERVICE_URL=${REACT_APP_USERS_SERVICE_URL}
+      # - CHOKIDAR_USEPOLLING=true
+    depends_on:
+      - users
+    links:
+      - users
+
   nginx:
     container_name: nginx
     build:
@@ -44,21 +61,3 @@ services:
     depends_on:
       - users
       - client
-
-  client:
-    container_name: client
-    build:
-      context: ./services/client
-      dockerfile: Dockerfile-dev
-    volumes:
-      - './services/client:/usr/src/app'
-      - '/usr/src/app/node_modules'
-    ports:
-      - '3007:3000'
-    environment:
-      - NODE_ENV=development
-      - REACT_APP_USERS_SERVICE_URL=${REACT_APP_USERS_SERVICE_URL}
-    depends_on:
-      - users
-    links:
-      - users

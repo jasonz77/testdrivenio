@@ -1,6 +1,7 @@
 import React, { Component } from 'react';
 import ReactDOM from 'react-dom';
 import axios from 'axios';
+
 import UsersList from './components/UsersList';
 import AddUser from './components/AddUser';
 
@@ -15,6 +16,14 @@ class App extends Component {
     this.addUser = this.addUser.bind(this);
     this.handleChange = this.handleChange.bind(this);
   };
+  componentDidMount() {
+    this.getUsers();
+  };
+  getUsers() {
+    axios.get(`${process.env.REACT_APP_USERS_SERVICE_URL}/users`)
+    .then((res) => { this.setState({ users: res.data.data.users }); })
+    .catch((err) => { console.log(err); });
+  };
   addUser(event) {
     event.preventDefault();
     const data = {
@@ -28,14 +37,6 @@ class App extends Component {
     })
     .catch((err) => { console.log(err); });
   }
-  componentDidMount() {
-    this.getUsers();
-  };
-  getUsers() {
-    axios.get(`${process.env.REACT_APP_USERS_SERVICE_URL}/users`)
-    .then((res) => { this.setState({ users: res.data.data.users }); })
-    .catch((err) => { console.log(err); });
-  };
   handleChange(event) {
     const obj = {};
     obj[event.target.name] = event.target.value;
